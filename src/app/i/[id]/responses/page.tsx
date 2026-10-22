@@ -5,11 +5,10 @@ import NavBar from "@/components/NavBar";
 import ResponseRow from "@/components/ResponseRow";
 import SectionHeader from "@/components/SectionHeader";
 import StatCard from "@/components/StatCard";
-import { getMockInvitation, mockRsvps } from "@/lib/mock";
+import { getInvitation, getRsvps } from "@/lib/invitations";
 import CopyInviteLinkButton from "./CopyInviteLinkButton";
 
 // /i/[id]/responses : 호스트가 응답 목록과 참석·불참 수, 참석 인원 합계를 본다 (Figma node 69:881)
-// 지금은 가짜 데이터(mock.ts)만 쓰므로 /i/demo/responses, /i/empty/responses 에서만 열린다.
 export default function ResponsesPage({ params }: PageProps<"/i/[id]/responses">) {
   return (
     <main className="mx-auto flex w-full max-w-mobile flex-col gap-20 bg-surface-default">
@@ -24,11 +23,11 @@ export default function ResponsesPage({ params }: PageProps<"/i/[id]/responses">
 
 async function Responses({ params }: Pick<PageProps<"/i/[id]/responses">, "params">) {
   const { id } = await params;
-  const invitation = getMockInvitation(id);
+  const invitation = await getInvitation(id);
 
   if (!invitation) notFound();
 
-  const rsvps = mockRsvps.filter((r) => r.invitationId === invitation.id);
+  const rsvps = await getRsvps(invitation.id);
   const attending = rsvps.filter((r) => r.status === "yes");
   const notAttending = rsvps.length - attending.length;
   // 참석 인원 합계 = 참석한 사람 + 동반 인원
